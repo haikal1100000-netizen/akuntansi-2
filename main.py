@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import json
 from datetime import date, datetime
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from typing import Dict, List
 import numpy as np
 
@@ -100,9 +100,15 @@ class PerusahaanDaging:
         } for t in self.transaksi_list]
         return pd.DataFrame(data)
     
-    @st.cache_data
     def get_metrics(self):
         df = self.get_df_transaksi()
+        if df.empty:
+            return {
+                'total_transaksi': 0,
+                'total_pendapatan': 0.0,
+                'total_beban': 0.0,
+                'laba_bersih': 0.0
+            }
         total_transaksi = len(df)
         total_pendapatan = df[df['Jenis'].str.contains('Penjualan', na=False)]['Debit'].sum()
         total_beban = df[df['Jenis'].str.contains('Biaya|Pemotongan', na=False)]['Debit'].sum()
